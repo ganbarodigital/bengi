@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,39 +39,33 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
-use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+namespace GanbaroDigital\Bengi\Helpers;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+/**
+ * generate a badge to include in the docs
+ */
+class MakeBadge
+{
+    public static function using($text, $value, $color, $pathToBadges, $style="flat-square")
+    {
+        // we cache the badges on disk to avoid hitting shields.io all
+        // the time
+        $badgeFilename = $pathToBadges . "/$text-$value.svg";
+        if (file_exists($badgeFilename)) {
+            return;
+        }
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+        $badge = false;
+        while (!$badge || empty($badge)) {
+            $badge = file_get_contents("https://img.shields.io/badge/{$text}-{$value}-{$color}.svg?style={$style}");
+            if (!$badge || empty($badge)) {
+                sleep(1);
+            }
+        }
 
-// setup our command-line
-$cli = new CliEngine();
+        MakePath::to($badgeFilename);
+        file_put_contents($badgeFilename, $badge);
 
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
-
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
-
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildContracts\Command);
-$cli->addCommand(new Commands\BuildPhpBadges\Command);
-
-$cli->main($argv, []);
+        echo "- downloaded badge {$badgeFilename}" . PHP_EOL;
+    }
+}

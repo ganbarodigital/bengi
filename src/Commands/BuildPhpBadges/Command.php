@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,39 +39,52 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
+namespace GanbaroDigital\Bengi\Commands\BuildPhpBadges;
+
+use GanbaroDigital\Bengi\Helpers;
 use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+use Phix_Project\CliEngine\CliCommand;
+use Phix_Project\CliEngine\CliResult;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+/**
+ * create badges to include in your Markdown
+ */
+class Command extends CliCommand
+{
+    public function __construct()
+    {
+        // define the command
+        $this->setName('build-php-badges');
+        $this->setShortDescription('create supported/unsupported badges to include in your Markdown');
+        $this->setLongDescription(
+            "Use this command to create 'PHP badges': image files that you"
+            ." can include in your docs to show which versions of PHP your"
+            ." code is compatible with."
+            .PHP_EOL
+        );
+    }
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+    public function processCommand(CliEngine $engine, $params = array(), $additionalContext = null)
+    {
+        // where are we going to put the badges?
+        $pathToBadges = $engine->options->docsPath . '/.i/badges';
 
-// setup our command-line
-$cli = new CliEngine();
+        $phpVersions = [
+            'PHP_5.6',
+            'PHP_7.0',
+            'PHP_7.1',
+            'PHP_7.2'
+        ];
 
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
+        foreach ($phpVersions as $phpVersion)
+        {
+            Helpers\MakeBadge::using($phpVersion, 'supported', 'brightgreen', $pathToBadges);
+            Helpers\MakeBadge::using($phpVersion, 'deprecated', 'yellow', $pathToBadges);
+            Helpers\MakeBadge::using($phpVersion, 'unsupported', 'orange', $pathToBadges);
+            Helpers\MakeBadge::using($phpVersion, 'untested', 'orange', $pathToBadges);
+            Helpers\MakeBadge::using($phpVersion, 'incompatible', 'red', $pathToBadges);
+        }
+    }
+}
 
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
 
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildContracts\Command);
-$cli->addCommand(new Commands\BuildPhpBadges\Command);
-
-$cli->main($argv, []);
