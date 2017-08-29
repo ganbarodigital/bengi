@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,38 +39,31 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
-use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+namespace GanbaroDigital\Bengi\Helpers;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+/**
+ * remove a folder (if we can)
+ */
+class UnlinkFolder
+{
+    public static function called(string $path)
+    {
+        // do we have something to remove?
+        if (!is_dir($path)) {
+            return;
+        }
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+        TrapLegacyErrors::call(
+            function() use ($path) {
+                rmdir($path);
+            },
+            function($errorMessage) {
+                echo "*** error: unable to remove folder '$path'" . PHP_EOL
+                . PHP_EOL
+                . "The error message was: {$errorMessage}" . PHP_EOL;
 
-// setup our command-line
-$cli = new CliEngine();
-
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
-
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
-
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildContracts\Command);
-
-$cli->main($argv, []);
+                exit(1);
+            }
+        );
+    }
+}

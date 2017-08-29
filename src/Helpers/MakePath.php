@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,38 +39,44 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
-use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+namespace GanbaroDigital\Bengi\Helpers;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+/**
+ * make a path to where we want to put a file
+ */
+class MakePath
+{
+    public static function to(string $filename)
+    {
+        $parts = explode(DIRECTORY_SEPARATOR, $filename);
+        if (count($parts) === 1) {
+            return;
+        }
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+        // remove the actual filename off the list
+        $partsKeys = array_keys($parts);
+        unset($parts[end($partsKeys)]);
 
-// setup our command-line
-$cli = new CliEngine();
+        $path = '.';
+        foreach ($parts as $folder) {
+            // what are we trying to create?
+            $path = $path . DIRECTORY_SEPARATOR . $folder;
 
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
+            // does this folder already exist?
+            if (is_dir($path)) {
+                continue;
+            }
 
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
-
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildContracts\Command);
-
-$cli->main($argv, []);
+            // try to create it
+            TrapLegacyErrors::call(
+                function() use ($path) {
+                    mkdir($path);
+                },
+                function($errorMessage) use($path) {
+                    echo "*** error: unable to create folder '$path'" . PHP_EOL;
+                    exit(1);
+                }
+            );
+        }
+    }
+}

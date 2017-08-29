@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,38 +39,40 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
+namespace GanbaroDigital\Bengi\Commands;
+
 use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+use Phix_Project\CliEngine\CliResult;
+use Phix_Project\CliEngine\CliSwitch;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+/**
+ * tell us where the docs are
+ */
+class PathToDocs extends CliSwitch
+{
+    public function __construct()
+    {
+        // define our name, and our description
+        $this->setName('docs');
+        $this->setShortDescription('the root folder for your docs');
+        $this->setLongDesc(
+            "Use this switch to tell us where your docs are."
+        );
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+        // how do you access this?
+        $this->addShortSwitch('d');
+        $this->addLongSwitch('docs');
 
-// setup our command-line
-$cli = new CliEngine();
+        // what is our parameter?
+        $this->setRequiredArg('<docs>', "the root folder for your docs");
+        $this->setArgHasDefaultValueOf("docs");
+    }
 
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
+    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false)
+    {
+        $engine->options->docsPath = $params[0];
 
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
-
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildContracts\Command);
-
-$cli->main($argv, []);
+        // tell the engine that it is done
+        return new CliResult(CliResult::PROCESS_CONTINUE);
+    }
+}

@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,38 +39,40 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
-use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+namespace GanbaroDigital\Bengi\Helpers;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+use FilesystemIterator;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+/**
+ * find the folders in a folder
+ */
+class FindFolders
+{
+    public static function from(string $path)
+    {
+        // do we have a path to examine?
+        if (!is_dir($path)) {
+            return;
+        }
 
-// setup our command-line
-$cli = new CliEngine();
+        $flags = FilesystemIterator::KEY_AS_PATHNAME
+               | FilesystemIterator::CURRENT_AS_FILEINFO
+               | FilesystemIterator::SKIP_DOTS;
 
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
+        $matches = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, $flags),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
 
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
+        foreach ($matches as $file) {
+            // skip over anything that isn't a folder
+            if (!$file->isDir()) {
+                continue;
+            }
 
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildContracts\Command);
-
-$cli->main($argv, []);
+            yield $file->getPathname();
+        }
+    }
+}

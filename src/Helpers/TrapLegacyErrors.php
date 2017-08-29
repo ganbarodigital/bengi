@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,38 +39,30 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
-use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+namespace GanbaroDigital\Bengi\Helpers;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+/**
+ * wrap a PHP call that uses the old legacy error handling
+ */
+class TrapLegacyErrors
+{
+    public static function call(callable $action, callable $onFailure)
+    {
+        // wrap our call, so that we can see what has gone wrong
+        $errorMessage = null;
+        set_error_handler(function ($errno, $errstr) use (&$errorMessage) {
+            $errorMessage = $errstr;
+        });
+        $retval = $action();
+        restore_error_handler();
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+        // did the PHP execute cleanly?
+        if ($errorMessage) {
+            // something went wrong
+            return $onFailure($errorMessage);
+        }
 
-// setup our command-line
-$cli = new CliEngine();
-
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
-
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
-
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildContracts\Command);
-
-$cli->main($argv, []);
+        // if we get here, all is well
+        return $retval;
+    }
+}
