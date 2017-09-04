@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -40,40 +39,50 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-use GanbaroDigital\Bengi\Commands;
+namespace GanbaroDigital\Bengi\Commands\BuildCodeCoverageMetrics;
+
 use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\Switches\LongHelpSwitch;
-use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
-use Phix_Project\CliEngine\Switches\VersionSwitch;
-use Phix_Project\CliEngine\Commands\HelpCommand;
-use Stuart\MyVersion;
+use Phix_Project\CliEngine\CliResult;
+use Phix_Project\CliEngine\CliSwitch;
 
-// use Composer to load everything for us
-require_once(__DIR__ . '/../vendor/autoload.php');
+/**
+ * switch used to tell us which file to load
+ */
+class PathToFile extends CliSwitch
+{
+    public function __construct()
+    {
+        // define our name, and our description
+        $this->setName('file');
+        $this->setShortDescription('the clover XML file to use');
+        $this->setLongDesc(
+            "Use this switch to tell us which file contains the XML output"
+            . " that you want to use."
+            . PHP_EOL . PHP_EOL
+            . "PHPUnit can produce an XML file containing code coverage"
+            . " metrics for your tests and source code. This file also"
+            . " includes some additional metrics such as the CRAP index."
+            .PHP_EOL . PHP_EOL
+            . " By default, we look for this file in the location that"
+            . " Ganbaro Digital's phpunix.xml.dist file always puts it."
+            . " If you have your own convention, use this switch to tell us"
+            . " where to load the XML from."
+        );
 
-// what is this app's current version?
-// $myVersion = new MyVersion('ganbarodigital/bengi');
-$myVersion = 'pre-alpha';
+        // how do you access this?
+        $this->addShortSwitch('f');
+        $this->addLongSwitch('file');
 
-// setup our command-line
-$cli = new CliEngine();
+        // what is our parameter?
+        $this->setRequiredArg('<file>', "the file to read from");
+        $this->setArgHasDefaultValueOf("review/logs/phpunit.xml");
+    }
 
-$cli->setAppName('bengi');
-$cli->setAppVersion((string)$myVersion);
-$cli->setAppUrl('https://ganbarodigital.github.io/bengi/');
-$cli->setAppCopyright('Copyright (c) 2017-present Ganbaro Digital Ltd. All rights reserved.');
-$cli->setAppLicense('Released under the BSD 3-Clause license.');
+    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false)
+    {
+        $engine->options->cloverFilename = $params[0];
 
-// add our global switches (if any)
-$cli->addEngineSwitch(new VersionSwitch);
-$cli->addEngineSwitch(new LongHelpSwitch);
-$cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
-
-// add our list of supported commands
-$cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildCodeCoverageMetrics\Command);
-$cli->addCommand(new Commands\BuildContracts\Command);
-$cli->addCommand(new Commands\BuildPhpBadges\Command);
-
-$cli->main($argv, []);
+        // tell the engine that it is done
+        return new CliResult(CliResult::PROCESS_CONTINUE);
+    }
+}
