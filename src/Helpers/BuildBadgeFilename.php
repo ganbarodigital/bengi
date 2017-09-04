@@ -42,30 +42,13 @@
 namespace GanbaroDigital\Bengi\Helpers;
 
 /**
- * generate a badge to include in the docs
+ * build the filename for a badge
  */
-class MakeBadge
+class BuildBadgeFilename
 {
-    public static function using($text, $value, $color, $pathToBadges, $style="flat-square")
+    public static function from($text, $value, $pathToBadges, $style="flat-square")
     {
-        // we cache the badges on disk to avoid hitting shields.io all
-        // the time
-        $badgeFilename = BuildBadgeFilename::from($text, $value, $pathToBadges, $style);
-        if (file_exists($badgeFilename)) {
-            return;
-        }
-
-        $badge = false;
-        while (!$badge || empty($badge)) {
-            $badge = file_get_contents("https://img.shields.io/badge/{$text}-{$value}-{$color}.svg?style={$style}");
-            if (!$badge || empty($badge)) {
-                sleep(1);
-            }
-        }
-
-        MakePath::to($badgeFilename);
-        file_put_contents($badgeFilename, $badge);
-
-        // echo "- downloaded badge {$badgeFilename}" . PHP_EOL;
+        $badgeFilename = $pathToBadges . "/$text-$value.svg";
+        return $badgeFilename;
     }
 }
