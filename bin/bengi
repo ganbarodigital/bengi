@@ -41,6 +41,7 @@
  */
 
 use GanbaroDigital\Bengi\Commands;
+use GanbaroDigital\Bengi\Helpers;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\Switches\LongHelpSwitch;
 use Phix_Project\CliEngine\Switches\ShortHelpSwitch;
@@ -54,6 +55,20 @@ require_once(__DIR__ . '/../vendor/autoload.php');
 // what is this app's current version?
 // $myVersion = new MyVersion('ganbarodigital/bengi');
 $myVersion = 'pre-alpha';
+
+// any config that we can use?
+$defaultConfig = (object) [
+    "php" => (object)[
+        "defaults" => [ "5.6", "7.0", "7.1" ],
+        "versions" => (object) [
+            "5.6" => "\$HOME/.phpbrew/php-5.6.31/bin/php",
+            "7.0" => "\$HOME/.phpbrew/php-7.0.23/bin/php",
+            "7.1" => "\$HOME/.phpbrew/php-7.1.9/bin/php",
+            "7.2" => null
+        ]
+    ]
+];
+$config = Helpers\LoadConfig::from('bengi.json', $defaultConfig);
 
 // setup our command-line
 $cli = new CliEngine();
@@ -76,4 +91,4 @@ $cli->addCommand(new Commands\BuildCodeCoverageMetrics\Command);
 $cli->addCommand(new Commands\BuildContracts\Command);
 $cli->addCommand(new Commands\BuildPhpBadges\Command);
 
-$cli->main($argv, []);
+$cli->main($argv, (object)['config' => $config]);

@@ -39,50 +39,37 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Commands\BuildPhpBadges;
-
-use GanbaroDigital\Bengi\Helpers;
-use Phix_Project\CliEngine;
-use Phix_Project\CliEngine\CliCommand;
-use Phix_Project\CliEngine\CliResult;
+namespace GanbaroDigital\Bengi\Helpers;
 
 /**
- * create badges to include in your Markdown
+ * load our config file
  */
-class Command extends CliCommand
+class LoadConfig
 {
-    public function __construct()
+    public static function from(string $filename, $defaultConfig)
     {
-        // define the command
-        $this->setName('build-php-badges');
-        $this->setShortDescription('create supported/unsupported badges to include in your Markdown');
-        $this->setLongDescription(
-            "Use this command to create 'PHP badges': image files that you"
-            ." can include in your docs to show which versions of PHP your"
-            ." code is compatible with."
-            .PHP_EOL
-        );
-    }
+        $loadFunc = function() use ($filename, $defaultConfig) {
+            // it isn't an error if there is no config file
+            if (!file_exists($filename)) {
+                return $defaultConfig;
+            }
 
-    public function processCommand(CliEngine $engine, $params = array(), $additionalContext = null)
-    {
-        // where are we going to put the badges?
-        $pathToBadges = $engine->options->docsPath . '/.i/badges';
+            $rawConfig = file_get_contents($filename);
+            $config = json_decode($rawConfig);
 
-        // shorthand
-        $phpVersions = $additionalContext->config->php->versions;
+            // TODO: add validation
 
-        foreach ($phpVersions as $phpVersion => $execCmd)
-        {
-            $phpVersion = 'PHP_' . $phpVersion;
+            return $config;
+        };
+        $onFailure = function($errorMessage) use ($filename) {
+            echo "*** error: there was a problem loading the config file '{$filename}'" . PHP_EOL
+            . PHP_EOL
+            . "The error was:" . PHP_EOL
+            . "- {$errorMessage}" . PHP_EOL;
 
-            Helpers\MakeBadge::using($phpVersion, 'supported', 'brightgreen', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'deprecated', 'yellow', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'unsupported', 'orange', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'untested', 'orange', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'incompatible', 'red', $pathToBadges);
-        }
+            exit(1);
+        };
+
+        return TrapLegacyErrors::call($loadFunc, $onFailure);
     }
 }
-
-
