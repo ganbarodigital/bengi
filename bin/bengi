@@ -41,6 +41,7 @@
  */
 
 use GanbaroDigital\Bengi\Commands;
+use GanbaroDigital\Bengi\Config;
 use GanbaroDigital\Bengi\Helpers;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\Switches\LongHelpSwitch;
@@ -56,8 +57,20 @@ require_once(__DIR__ . '/../vendor/autoload.php');
 // $myVersion = new MyVersion('ganbarodigital/bengi');
 $myVersion = 'pre-alpha';
 
-// any config that we can use?
+// defaults for *everything*
+//
+// we use {dot.notation.path} so that everything adjusts if you
+// override one of the paths in your config file or via command line
 $defaultConfig = (object) [
+    "project" => (object)[
+        "path" => Config\GetProjectPath::DEFAULT_VALUE,
+    ],
+    "docs" => (object)[
+        "path" => Config\GetDocsPath::DEFAULT_VALUE,
+        "badges" => Config\GetBadgesPath::DEFAULT_VALUE,
+        "code_metrics" => Config\GetCodeMetricsPath::DEFAULT_VALUE,
+        "contracts" => Config\GetContractsPath::DEFAULT_VALUE,
+    ],
     "php" => (object)[
         "defaults" => [ "5.6", "7.0", "7.1" ],
         "versions" => (object) [
@@ -66,9 +79,17 @@ $defaultConfig = (object) [
             "7.1" => "\$HOME/.phpbrew/php-7.1.9/bin/php",
             "7.2" => null
         ]
-    ]
+    ],
+    "phpunit" => (object)[
+        "clover_xml" => Config\GetCloverXmlPath::DEFAULT_VALUE,
+        "testdox_txt" => Config\GetTestdoxTxtPath::DEFAULT_VALUE,
+    ],
 ];
-$config = Helpers\LoadConfig::from('bengi.json', $defaultConfig);
+
+// any local config we can pick up and use?
+$context = (object)[
+    'config' => Helpers\LoadConfig::from('bengi.json', $defaultConfig),
+];
 
 // setup our command-line
 $cli = new CliEngine();
@@ -83,12 +104,13 @@ $cli->setAppLicense('Released under the BSD 3-Clause license.');
 $cli->addEngineSwitch(new VersionSwitch);
 $cli->addEngineSwitch(new LongHelpSwitch);
 $cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToDocs);
+$cli->addEngineSwitch(new Commands\PathToProject($context));
+$cli->addEngineSwitch(new Commands\PathToDocs($context));
 
 // add our list of supported commands
 $cli->addCommand(new HelpCommand);
-$cli->addCommand(new Commands\BuildCodeCoverageMetrics\Command);
-$cli->addCommand(new Commands\BuildContracts\Command);
-$cli->addCommand(new Commands\BuildPhpBadges\Command);
+$cli->addCommand(new Commands\BuildCodeCoverageMetrics\Command($context));
+$cli->addCommand(new Commands\BuildContracts\Command($context));
+$cli->addCommand(new Commands\BuildPhpBadges\Command($context));
 
-$cli->main($argv, (object)['config' => $config]);
+$cli->main($argv, $context);

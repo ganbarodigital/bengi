@@ -41,6 +41,7 @@
 
 namespace GanbaroDigital\Bengi\Commands\BuildPhpBadges;
 
+use GanbaroDigital\Bengi\Config;
 use GanbaroDigital\Bengi\Helpers;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\CliCommand;
@@ -67,11 +68,12 @@ class Command extends CliCommand
     public function processCommand(CliEngine $engine, $params = array(), $additionalContext = null)
     {
         // where are we going to put the badges?
-        $pathToBadges = $engine->options->docsPath . '/.i/badges';
+        $pathToBadges = Config\GetBadgesPath::from($additionalContext->config);
 
         // shorthand
-        $phpVersions = $additionalContext->config->php->versions;
+        $phpVersions = GetSupportedPhpVersionsList::from($additionalContext->config);
 
+        // build a full set of badges for each given PHP version
         foreach ($phpVersions as $phpVersion => $execCmd)
         {
             $phpVersion = 'PHP_' . $phpVersion;

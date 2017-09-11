@@ -41,6 +41,7 @@
 
 namespace GanbaroDigital\Bengi\Commands\BuildCodeCoverageMetrics;
 
+use GanbaroDigital\Bengi\Config;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\CliResult;
 use Phix_Project\CliEngine\CliSwitch;
@@ -50,7 +51,7 @@ use Phix_Project\CliEngine\CliSwitch;
  */
 class PathToFile extends CliSwitch
 {
-    public function __construct()
+    public function __construct($additionalContext)
     {
         // define our name, and our description
         $this->setName('file');
@@ -75,12 +76,13 @@ class PathToFile extends CliSwitch
 
         // what is our parameter?
         $this->setRequiredArg('<file>', "the file to read from");
-        $this->setArgHasDefaultValueOf("review/logs/phpunit.xml");
+        $this->setArgHasDefaultValueOf(Config\GetCloverXmlPath::from($additionalContext->config));
     }
 
-    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false)
+    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false, $additionalContext = null)
     {
-        $engine->options->cloverFilename = $params[0];
+        // update our config
+        Config\SetCloverXmlPath::in($additionalContext->config, $params[0]);
 
         // tell the engine that it is done
         return new CliResult(CliResult::PROCESS_CONTINUE);

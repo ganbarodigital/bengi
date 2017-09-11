@@ -39,44 +39,25 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Helpers;
-
-use GanbaroDigital\DataContainers\Editors\MergeIntoAssignable;
+namespace GanbaroDigital\Bengi\Config;
 
 /**
- * load our config file
+ * get the list of PHP versions to run examples with
+ *
+ * this list is used when the example code doesn't specify any
+ * specific versions of its own
  */
-class LoadConfig
+class GetDefaultPhpVersionsList
 {
-    public static function from(string $filename, $defaultConfig)
+    const CONFIG_PATH = "php.defaults";
+    const DEFAULT_VALUE = [
+        "5.6",
+        "7.0",
+        "7.1"
+    ];
+
+    public static function from($config)
     {
-        $loadFunc = function() use ($filename, $defaultConfig) {
-            // it isn't an error if there is no config file
-            if (!file_exists($filename)) {
-                return $defaultConfig;
-            }
-
-            $rawConfig = file_get_contents($filename);
-            $config = json_decode($rawConfig);
-
-            // TODO: add validation
-
-            // merge the loaded config into the defaults
-            $retval = clone $defaultConfig;
-            MergeIntoAssignable::from($retval, $config);
-
-            // all done
-            return $retval;
-        };
-        $onFailure = function($errorMessage) use ($filename) {
-            echo "*** error: there was a problem loading the config file '{$filename}'" . PHP_EOL
-            . PHP_EOL
-            . "The error was:" . PHP_EOL
-            . "- {$errorMessage}" . PHP_EOL;
-
-            exit(1);
-        };
-
-        return TrapLegacyErrors::call($loadFunc, $onFailure);
+        return GetConfigSetting::from($config, self::CONFIG_PATH, self::DEFAULT_VALUE);
     }
 }

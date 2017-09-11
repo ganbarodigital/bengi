@@ -39,44 +39,42 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Helpers;
+namespace GanbaroDigital\Bengi\Commands;
 
-use GanbaroDigital\DataContainers\Editors\MergeIntoAssignable;
+use GanbaroDigital\Bengi\Config;
+use Phix_Project\CliEngine;
+use Phix_Project\CliEngine\CliResult;
+use Phix_Project\CliEngine\CliSwitch;
 
 /**
- * load our config file
+ * tell us where the whole project is
  */
-class LoadConfig
+class PathToProject extends CliSwitch
 {
-    public static function from(string $filename, $defaultConfig)
+    public function __construct($additionalContext)
     {
-        $loadFunc = function() use ($filename, $defaultConfig) {
-            // it isn't an error if there is no config file
-            if (!file_exists($filename)) {
-                return $defaultConfig;
-            }
+        // define our name, and our description
+        $this->setName('project');
+        $this->setShortDescription('the root folder for your project');
+        $this->setLongDesc(
+            "Use this switch to tell us where your project is."
+        );
 
-            $rawConfig = file_get_contents($filename);
-            $config = json_decode($rawConfig);
+        // how do you access this?
+        $this->addShortSwitch('p');
+        $this->addLongSwitch('project');
 
-            // TODO: add validation
+        // what is our parameter?
+        $this->setRequiredArg('<path>', "the root folder for your project");
+        $this->setArgHasDefaultValueOf(Config\GetProjectPath::from($additionalContext->config));
+    }
 
-            // merge the loaded config into the defaults
-            $retval = clone $defaultConfig;
-            MergeIntoAssignable::from($retval, $config);
+    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false, $additionalContext = null)
+    {
+        // update our config
+        Config\SetProjectPath::to($additionalContext->config, $params[0]);
 
-            // all done
-            return $retval;
-        };
-        $onFailure = function($errorMessage) use ($filename) {
-            echo "*** error: there was a problem loading the config file '{$filename}'" . PHP_EOL
-            . PHP_EOL
-            . "The error was:" . PHP_EOL
-            . "- {$errorMessage}" . PHP_EOL;
-
-            exit(1);
-        };
-
-        return TrapLegacyErrors::call($loadFunc, $onFailure);
+        // tell the engine that it is done
+        return new CliResult(CliResult::PROCESS_CONTINUE);
     }
 }

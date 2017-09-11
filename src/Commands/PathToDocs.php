@@ -41,6 +41,7 @@
 
 namespace GanbaroDigital\Bengi\Commands;
 
+use GanbaroDigital\Bengi\Config;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\CliResult;
 use Phix_Project\CliEngine\CliSwitch;
@@ -50,7 +51,7 @@ use Phix_Project\CliEngine\CliSwitch;
  */
 class PathToDocs extends CliSwitch
 {
-    public function __construct()
+    public function __construct($additionalContext)
     {
         // define our name, and our description
         $this->setName('docs');
@@ -65,12 +66,13 @@ class PathToDocs extends CliSwitch
 
         // what is our parameter?
         $this->setRequiredArg('<docs>', "the root folder for your docs");
-        $this->setArgHasDefaultValueOf("docs");
+        $this->setArgHasDefaultValueOf(Config\GetDocsPath::from($additionalContext->config));
     }
 
-    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false)
+    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false, $additionalContext = null)
     {
-        $engine->options->docsPath = $params[0];
+        // update our config
+        Config\SetDocsPath::to($additionalContext->config, $params[0]);
 
         // tell the engine that it is done
         return new CliResult(CliResult::PROCESS_CONTINUE);

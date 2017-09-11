@@ -41,6 +41,7 @@
 
 namespace GanbaroDigital\Bengi\Commands\BuildContracts;
 
+use GanbaroDigital\Bengi\Config;
 use GanbaroDigital\Bengi\Helpers;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\CliCommand;
@@ -71,7 +72,7 @@ class Command extends CliCommand
     public function processCommand(CliEngine $engine, $params = array(), $additionalContext = null)
     {
         // where are we looking?
-        $testdoxFilename = $engine->options->testdoxFilename;
+        $testdoxFilename = Config\GetTestdoxTxtPath::from($additionalContext->config);
 
         // do we have one?
         if (!file_exists($testdoxFilename)) {
@@ -85,7 +86,7 @@ class Command extends CliCommand
         }
 
         // where might the existing contracts be?
-        $pathToContracts = $engine->options->docsPath . '/.i/contracts';
+        $pathToContracts = Config\GetContractsPath::from($additionalContext->config);
 
         // remove all the old contract files
         // in case some of them are no longer needed

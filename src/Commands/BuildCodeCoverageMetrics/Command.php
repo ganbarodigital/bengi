@@ -41,6 +41,7 @@
 
 namespace GanbaroDigital\Bengi\Commands\BuildCodeCoverageMetrics;
 
+use GanbaroDigital\Bengi\Config;
 use GanbaroDigital\Bengi\Helpers;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\CliCommand;
@@ -51,7 +52,7 @@ use Phix_Project\CliEngine\CliResult;
  */
 class Command extends CliCommand
 {
-    public function __construct()
+    public function __construct($additionalContext)
     {
         // define the command
         $this->setName('build-code-coverage-metrics');
@@ -64,14 +65,14 @@ class Command extends CliCommand
 
         // add in any switches we support
         $this->addSwitches([
-            new PathToFile
+            new PathToFile($additionalContext)
         ]);
     }
 
     public function processCommand(CliEngine $engine, $params = array(), $additionalContext = null)
     {
         // where are we looking?
-        $cloverFilename = $engine->options->cloverFilename;
+        $cloverFilename = Config\GetCloverXmlPath::from($additionalContext->config);
 
         // do we have one?
         if (!file_exists($cloverFilename)) {
@@ -88,7 +89,7 @@ class Command extends CliCommand
         list($classMetrics, $functionMetrics) = Helpers\ExtractCodeCoverageMetrics::from($cloverFilename);
 
         // where might the existing metrics docs be?
-        $pathToMetrics = $engine->options->docsPath . '/.i/code-metrics';
+        $pathToMetrics = Config\GetCodeMetricsPath::from($additionalContext->config);
 
         // remove all the old contract files
         // in case some of them are no longer needed
@@ -99,10 +100,8 @@ class Command extends CliCommand
             Helpers\UnlinkFolder::called($filename);
         }
 
-
         // where are we going to put the badges?
-        $pathToBadges = $engine->options->docsPath . '/.i/badges';
-
+        $pathToBadges = Config\GetBadgesPath::from($additionalContext->config);
 
         // write out the class stats
         foreach ($classMetrics as $className => $methods) {

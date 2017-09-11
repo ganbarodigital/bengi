@@ -48,6 +48,7 @@
         "ganbarodigital/php-the-missing-bits": "^1.9",
         "phix/injectables": "^1.0",
         "padraic/phar-updater": "^1.0",
-        "stuart/myversion": "^1.1"
+        "stuart/myversion": "^1.1",
+        "ganbarodigital/php-data-containers": "^2.5"
     }
 }

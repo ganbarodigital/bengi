@@ -39,44 +39,17 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Helpers;
+namespace GanbaroDigital\Bengi\Config;
 
-use GanbaroDigital\DataContainers\Editors\MergeIntoAssignable;
+use GanbaroDigital\DataContainers\Editors\MergeUsingDotNotationPath;
 
 /**
- * load our config file
+ * set / update a value in our config
  */
-class LoadConfig
+class SetConfigSetting
 {
-    public static function from(string $filename, $defaultConfig)
+    public static function to($config, $path, $newValue)
     {
-        $loadFunc = function() use ($filename, $defaultConfig) {
-            // it isn't an error if there is no config file
-            if (!file_exists($filename)) {
-                return $defaultConfig;
-            }
-
-            $rawConfig = file_get_contents($filename);
-            $config = json_decode($rawConfig);
-
-            // TODO: add validation
-
-            // merge the loaded config into the defaults
-            $retval = clone $defaultConfig;
-            MergeIntoAssignable::from($retval, $config);
-
-            // all done
-            return $retval;
-        };
-        $onFailure = function($errorMessage) use ($filename) {
-            echo "*** error: there was a problem loading the config file '{$filename}'" . PHP_EOL
-            . PHP_EOL
-            . "The error was:" . PHP_EOL
-            . "- {$errorMessage}" . PHP_EOL;
-
-            exit(1);
-        };
-
-        return TrapLegacyErrors::call($loadFunc, $onFailure);
+        MergeUsingDotNotationPath::into($config, $path, $newValue);
     }
 }

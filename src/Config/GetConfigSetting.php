@@ -39,44 +39,51 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Helpers;
+namespace GanbaroDigital\Bengi\Config;
 
-use GanbaroDigital\DataContainers\Editors\MergeIntoAssignable;
+use GanbaroDigital\DataContainers\Filters\FilterDotNotationPath;
 
 /**
- * load our config file
+ * extract a setting from our loaded config
+ *
+ * this will expand any {dot.notation.path} sections
  */
-class LoadConfig
+class GetConfigSetting
 {
-    public static function from(string $filename, $defaultConfig)
+    public static function from($config, $path, $defaultValue)
     {
-        $loadFunc = function() use ($filename, $defaultConfig) {
-            // it isn't an error if there is no config file
-            if (!file_exists($filename)) {
-                return $defaultConfig;
-            }
+        // step 1: do we have a value at the expected place?
+        try {
+            $value = FilterDotNotationPath::from($config, $path);
+        }
+        catch (\Exception $e) {
+            $value = $defaultValue;
+        }
 
-            $rawConfig = file_get_contents($filename);
-            $config = json_decode($rawConfig);
+        // step 2: does it contain a path that needs expanding?
+        if (!is_string($value)) {
+            return $value;
+        }
+        if (!preg_match_all('/{([^}]+)}/', $value, $matches, PREG_OFFSET_CAPTURE)) {
+            // do, it does not
+            return $value;
+        }
 
-            // TODO: add validation
+        // if we get here, then we have a set of paths to expand
+        $offsetShift = 0;
+        foreach ($matches[0] as $matchIndex => $match) {
+            $matchPath = $matches[1][$matchIndex][0];
+            $matchLen = strlen($match[0]);
+            $matchValue = GetConfigSetting::from($config, $matchPath, '');
 
-            // merge the loaded config into the defaults
-            $retval = clone $defaultConfig;
-            MergeIntoAssignable::from($retval, $config);
+            $value = substr($value, 0, $match[1] + $offsetShift) . $matchValue . substr($value, $match[1] + $matchLen + $offsetShift);
 
-            // all done
-            return $retval;
-        };
-        $onFailure = function($errorMessage) use ($filename) {
-            echo "*** error: there was a problem loading the config file '{$filename}'" . PHP_EOL
-            . PHP_EOL
-            . "The error was:" . PHP_EOL
-            . "- {$errorMessage}" . PHP_EOL;
+            // the offsets that our REGEX found are now inaccurage,
+            // we have just changed the length of our $value string
+            $offsetShift = $offsetShift + strlen($matchValue) - $matchLen;
+        }
 
-            exit(1);
-        };
-
-        return TrapLegacyErrors::call($loadFunc, $onFailure);
+        // all done
+        return $value;
     }
 }
