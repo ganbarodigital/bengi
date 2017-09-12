@@ -82,7 +82,7 @@ class PathToFile extends CliSwitch
     public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false, $additionalContext = null)
     {
         // update our config
-        Config\SetCloverXmlPath::in($additionalContext->config, $params[0]);
+        Config\SetCloverXmlPath::to($additionalContext->config, $params[0]);
 
         // tell the engine that it is done
         return new CliResult(CliResult::PROCESS_CONTINUE);
