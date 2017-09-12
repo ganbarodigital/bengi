@@ -56,9 +56,31 @@ class MakeBadge
         }
 
         $badge = false;
+        $retryCount = 5;
         while (!$badge || empty($badge)) {
-            $badge = file_get_contents("https://img.shields.io/badge/{$text}-{$value}-{$color}.svg?style={$style}");
+            $downloadFunc = function() use (&$badge, $text, $value, $color, $style) {
+                return file_get_contents("https://img.shields.io/badge/{$text}-{$value}-{$color}.svg?style={$style}");
+            };
+            $onFailure = function($errorMessage) {
+                echo "*** warning: there was a problem downloading a badge" . PHP_EOL
+                . PHP_EOL
+                . "The error message was:" . PHP_EOL
+                . '- ' . $errorMessage . PHP_EOL
+                . PHP_EOL
+                . "Retrying ..." . PHP_EOL;
+
+                return false;
+            };
+            $badge = TrapLegacyErrors::call($downloadFunc, $onFailure);
             if (!$badge || empty($badge)) {
+                $retryCount--;
+
+                if ($retryCount === 0) {
+                    echo "*** error: too many retries; giving up" . PHP_EOL;
+                    exit(1);
+                }
+
+                // if we get here, we're going to give it another go
                 sleep(1);
             }
         }
