@@ -52,7 +52,7 @@ use Phix_Project\CliEngine\CliResult;
  */
 class Command extends CliCommand
 {
-    public function __construct()
+    public function __construct($additionalContext)
     {
         // define the command
         $this->setName('build-contracts');
@@ -65,7 +65,7 @@ class Command extends CliCommand
 
         // add in any switches we support
         $this->addSwitches([
-            new PathToFile
+            new PathToFile($additionalContext)
         ]);
     }
 

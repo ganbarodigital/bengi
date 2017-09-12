@@ -71,7 +71,7 @@ class Command extends CliCommand
         $pathToBadges = Config\GetBadgesPath::from($additionalContext->config);
 
         // shorthand
-        $phpVersions = GetSupportedPhpVersionsList::from($additionalContext->config);
+        $phpVersions = Config\GetSupportedPhpVersionsList::from($additionalContext->config);
 
         // build a full set of badges for each given PHP version
         foreach ($phpVersions as $phpVersion => $execCmd)
