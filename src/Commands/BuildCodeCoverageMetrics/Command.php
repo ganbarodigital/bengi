@@ -103,6 +103,9 @@ class Command extends CliCommand
         // where are we going to put the badges?
         $pathToBadges = Config\GetBadgesPath::from($additionalContext->config);
 
+        // what style of badge do we want to go and get?
+        $badgesStyle = Config\GetBadgesStyle::from($additionalContext->config);
+
         // write out the class stats
         foreach ($classMetrics as $className => $methods) {
             foreach ($methods as $methodName => $methodDetails) {
@@ -129,7 +132,7 @@ class Command extends CliCommand
                     $color = 'yellow';
                 }
 
-                $coverageBadge = Helpers\LoadBadge::using('coverage', $codeCoverage, $color, $pathToBadges);
+                $coverageBadge = Helpers\LoadBadge::using('coverage', $codeCoverage, $color, $pathToBadges, $badgesStyle);
 
                 $complexity = $methodDetails['complexity'];
                 $color = 'brightgreen';
@@ -140,7 +143,7 @@ class Command extends CliCommand
                     $color = 'red';
                 }
 
-                $complexityBadge = Helpers\LoadBadge::using('complexity', $complexity, $color, $pathToBadges);
+                $complexityBadge = Helpers\LoadBadge::using('complexity', $complexity, $color, $pathToBadges, $badgesStyle);
 
 
                 $crap = $methodDetails['CRAP'];
@@ -152,7 +155,7 @@ class Command extends CliCommand
                     $color = 'red';
                 }
 
-                $crapBadge = Helpers\LoadBadge::using('CRAP', $crap, $color, $pathToBadges);
+                $crapBadge = Helpers\LoadBadge::using('CRAP', $crap, $color, $pathToBadges, $badgesStyle);
 
                 // make it easy to include
                 $stats = <<<EOS

@@ -39,18 +39,54 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Config;
+namespace GanbaroDigital\Bengi\Commands;
+
+use GanbaroDigital\Bengi\Config;
+use Phix_Project\CliEngine;
+use Phix_Project\CliEngine\CliResult;
+use Phix_Project\CliEngine\CliSwitch;
 
 /**
- * get the path to our cache of badges
+ * change the default style for downloaded badges
  */
-class GetBadgesPath
+class BadgesStyle extends CliSwitch
 {
-    const CONFIG_PATH = 'docs.badges.path';
-    const DEFAULT_VALUE = "{docs.path}/.i/badges";
-
-    public static function from($config)
+    public function __construct($additionalContext)
     {
-        return GetConfigSetting::from($config, self::CONFIG_PATH, self::DEFAULT_VALUE);
+        // define our name, and our description
+        $this->setName('style');
+        $this->setShortDescription('the badge style to use');
+        $this->setLongDesc(
+            "Use this switch to tell us which style of shields.io badge"
+            . " you want to use."
+            . PHP_EOL . PHP_EOL
+            . "bengi downloads badges from http://shields.io to include in"
+            . " your documentation. Supported styles include:" . PHP_EOL
+            . PHP_EOL
+            . "- plastic" . PHP_EOL
+            . "- flat" . PHP_EOL
+            . "- flat-square" . PHP_EOL
+            . "- social" . PHP_EOL
+            . PHP_EOL
+            . "Note: If you want to change badge styles, you will need to"
+            . " manually remove all the badges that have been downloaded."
+            . " bengi won't remove them for you."
+        );
+
+        // how do you access this?
+        $this->addLongSwitch('badge-style');
+
+        // what is our parameter?
+        $this->setRequiredArg('<style>', "the badge style to use");
+        $this->setArgHasDefaultValueOf(Config\GetBadgesStyle::from($additionalContext->config));
+    }
+
+    public function process(CliEngine $engine, $invokes = 1, $params = array(), $isDefaultParam = false, $additionalContext = null)
+    {
+        // update our config
+        Config\SetBadgesStyle::to($additionalContext->config, $params[0]);
+
+        // tell the engine that it is done
+        return new CliResult(CliResult::PROCESS_CONTINUE);
     }
 }

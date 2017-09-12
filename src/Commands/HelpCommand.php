@@ -39,18 +39,11 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Config;
+namespace GanbaroDigital\Bengi\Commands;
 
 /**
- * get the path to our cache of badges
+ * container for a classmap (as found in a composer project)
  */
-class GetBadgesPath
+class HelpCommand
 {
-    const CONFIG_PATH = 'docs.badges.path';
-    const DEFAULT_VALUE = "{docs.path}/.i/badges";
-
-    public static function from($config)
-    {
-        return GetConfigSetting::from($config, self::CONFIG_PATH, self::DEFAULT_VALUE);
-    }
 }

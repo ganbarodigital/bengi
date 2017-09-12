@@ -72,17 +72,18 @@ class Command extends CliCommand
 
         // shorthand
         $phpVersions = Config\GetSupportedPhpVersionsList::from($additionalContext->config);
+        $badgesStyle = Config\GetBadgesStyle::from($additionalContext->config);
 
         // build a full set of badges for each given PHP version
         foreach ($phpVersions as $phpVersion => $execCmd)
         {
             $phpVersion = 'PHP_' . $phpVersion;
 
-            Helpers\MakeBadge::using($phpVersion, 'supported', 'brightgreen', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'deprecated', 'yellow', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'unsupported', 'orange', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'untested', 'orange', $pathToBadges);
-            Helpers\MakeBadge::using($phpVersion, 'incompatible', 'red', $pathToBadges);
+            Helpers\MakeBadge::using($phpVersion, 'supported', 'brightgreen', $pathToBadges, $badgesStyle);
+            Helpers\MakeBadge::using($phpVersion, 'deprecated', 'yellow', $pathToBadges, $badgesStyle);
+            Helpers\MakeBadge::using($phpVersion, 'unsupported', 'orange', $pathToBadges, $badgesStyle);
+            Helpers\MakeBadge::using($phpVersion, 'untested', 'orange', $pathToBadges, $badgesStyle);
+            Helpers\MakeBadge::using($phpVersion, 'incompatible', 'red', $pathToBadges, $badgesStyle);
         }
     }
 }

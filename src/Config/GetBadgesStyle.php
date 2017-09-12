@@ -42,12 +42,12 @@
 namespace GanbaroDigital\Bengi\Config;
 
 /**
- * get the path to our cache of badges
+ * get the style to use when creating badges
  */
-class GetBadgesPath
+class GetBadgesStyle
 {
-    const CONFIG_PATH = 'docs.badges.path';
-    const DEFAULT_VALUE = "{docs.path}/.i/badges";
+    const CONFIG_PATH = 'docs.badges.style';
+    const DEFAULT_VALUE = "flat-square";
 
     public static function from($config)
     {

@@ -67,7 +67,10 @@ $defaultConfig = (object) [
     ],
     "docs" => (object)[
         "path" => Config\GetDocsPath::DEFAULT_VALUE,
-        "badges" => Config\GetBadgesPath::DEFAULT_VALUE,
+        "badges" => (object) [
+            "path" => Config\GetBadgesPath::DEFAULT_VALUE,
+            "style" => Config\GetBadgesStyle::DEFAULT_VALUE,
+        ],
         "code_metrics" => Config\GetCodeMetricsPath::DEFAULT_VALUE,
         "contracts" => Config\GetContractsPath::DEFAULT_VALUE,
     ],
@@ -106,6 +109,7 @@ $cli->addEngineSwitch(new LongHelpSwitch);
 $cli->addEngineSwitch(new ShortHelpSwitch);
 $cli->addEngineSwitch(new Commands\PathToProject($context));
 $cli->addEngineSwitch(new Commands\PathToDocs($context));
+$cli->addEngineSwitch(new Commands\BadgesStyle($context));
 
 // add our list of supported commands
 $cli->addCommand(new HelpCommand);
