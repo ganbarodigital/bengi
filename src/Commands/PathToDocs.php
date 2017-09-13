@@ -65,7 +65,7 @@ class PathToDocs extends CliSwitch
         $this->addLongSwitch('docs');
 
         // what is our parameter?
-        $this->setRequiredArg('<docs>', "the root folder for your docs");
+        $this->setRequiredArg('<path>', "the root folder for your docs");
         $this->setArgHasDefaultValueOf(Config\GetDocsPath::from($additionalContext->config));
     }
 
