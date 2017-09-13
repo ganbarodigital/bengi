@@ -46,7 +46,7 @@ namespace GanbaroDigital\Bengi\Config;
  */
 class GetContractsPath
 {
-    const CONFIG_PATH = 'docs.contracts';
+    const CONFIG_PATH = 'docs.contracts.path';
     const DEFAULT_VALUE = "{docs.path}/.i/contracts";
 
     public static function from($config)

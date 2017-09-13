@@ -46,7 +46,7 @@ namespace GanbaroDigital\Bengi\Config;
  */
 class GetTestdoxTxtPath
 {
-    const CONFIG_PATH = 'phpunit.testdox_txt';
+    const CONFIG_PATH = 'phpunit.testdox_txt.path';
     const DEFAULT_VALUE = '{project.path}/review/testdox.txt';
 
     public static function from($config)

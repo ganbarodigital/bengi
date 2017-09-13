@@ -46,7 +46,7 @@ namespace GanbaroDigital\Bengi\Config;
  */
 class GetCloverXmlPath
 {
-    CONST CONFIG_PATH = 'phpunit.clover_xml';
+    CONST CONFIG_PATH = 'phpunit.clover_xml.path';
     const DEFAULT_VALUE = '{project.path}/review/logs/phpunit.xml';
 
     public static function from($config)

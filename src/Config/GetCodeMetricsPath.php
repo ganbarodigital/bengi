@@ -46,7 +46,7 @@ namespace GanbaroDigital\Bengi\Config;
  */
 class GetCodeMetricsPath
 {
-    const CONFIG_PATH = 'docs.code_metrics';
+    const CONFIG_PATH = 'docs.code_metrics.path';
     const DEFAULT_VALUE = "{docs.path}/.i/code-metrics";
 
     public static function from($config)

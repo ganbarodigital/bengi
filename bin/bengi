@@ -71,9 +71,15 @@ $config = (object) [
             "path" => Config\GetBadgesPath::DEFAULT_VALUE,
             "style" => Config\GetBadgesStyle::DEFAULT_VALUE,
         ],
-        "code_metrics" => Config\GetCodeMetricsPath::DEFAULT_VALUE,
-        "contracts" => Config\GetContractsPath::DEFAULT_VALUE,
-        "examples" => Config\GetExamplesDestPath::DEFAULT_VALUE,
+        "code_metrics" => (object)[
+            "path" => Config\GetCodeMetricsPath::DEFAULT_VALUE,
+        ],
+        "contracts" => (object)[
+            "path" => Config\GetContractsPath::DEFAULT_VALUE,
+        ],
+        "examples" => (object)[
+            "path" => Config\GetExamplesDestPath::DEFAULT_VALUE,
+        ]
     ],
     "examples" => (object)[
         "path" => Config\GetExamplesSourcePath::DEFAULT_VALUE,
@@ -88,8 +94,12 @@ $config = (object) [
         ]
     ],
     "phpunit" => (object)[
-        "clover_xml" => Config\GetCloverXmlPath::DEFAULT_VALUE,
-        "testdox_txt" => Config\GetTestdoxTxtPath::DEFAULT_VALUE,
+        "clover_xml" => (object)[
+            "path" => Config\GetCloverXmlPath::DEFAULT_VALUE,
+        ],
+        "testdox_txt" => (object)[
+            "path" => Config\GetTestdoxTxtPath::DEFAULT_VALUE,
+        ]
     ],
 ];
 
