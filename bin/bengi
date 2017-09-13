@@ -61,7 +61,7 @@ $myVersion = 'pre-alpha';
 //
 // we use {dot.notation.path} so that everything adjusts if you
 // override one of the paths in your config file or via command line
-$defaultConfig = (object) [
+$config = (object) [
     "project" => (object)[
         "path" => Config\GetProjectPath::DEFAULT_VALUE,
     ],
@@ -73,6 +73,10 @@ $defaultConfig = (object) [
         ],
         "code_metrics" => Config\GetCodeMetricsPath::DEFAULT_VALUE,
         "contracts" => Config\GetContractsPath::DEFAULT_VALUE,
+        "examples" => Config\GetExamplesDestPath::DEFAULT_VALUE,
+    ],
+    "examples" => (object)[
+        "path" => Config\GetExamplesSourcePath::DEFAULT_VALUE,
     ],
     "php" => (object)[
         "defaults" => [ "5.6", "7.0", "7.1" ],
@@ -90,8 +94,19 @@ $defaultConfig = (object) [
 ];
 
 // any local config we can pick up and use?
+$configFiles = [
+    "bengi.json",
+    getenv('HOME') . '/.bengi.json'
+];
+foreach ($configFiles as $configFile) {
+    $config = Helpers\LoadConfig::from($configFile, $config);
+}
+
+// make this accessible to the rest of the code base
+//
+// we may well add other things to this container in the future!
 $context = (object)[
-    'config' => Helpers\LoadConfig::from('bengi.json', $defaultConfig),
+    'config' => $config,
 ];
 
 // setup our command-line

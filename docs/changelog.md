@@ -8,3 +8,4 @@
 * `build-contracts` - convert PHPUnit testdox.txt into Markdown
 * `build-php-badges` - get PHP badges from shields.io
 * `bengi.json` config file for your project
+* `$HOME/.bengi.json` config file for your computer
