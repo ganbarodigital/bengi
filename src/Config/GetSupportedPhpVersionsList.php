@@ -48,10 +48,9 @@ class GetSupportedPhpVersionsList
 {
     const CONFIG_PATH = "php.versions";
     const DEFAULT_VALUE = [
-        "5.6" => "\$HOME/.phpbrew/php-5.6.31/bin/php",
-        "7.0" => "\$HOME/.phpbrew/php-7.0.23/bin/php",
-        "7.1" => "\$HOME/.phpbrew/php-7.1.9/bin/php",
-        "7.2" => null
+        "5.6" => "/usr/bin/env php56",
+        "7.0" => "/usr/bin/env php70",
+        "7.1" => "/usr/bin/env php71",
     ];
 
     public static function from($config)

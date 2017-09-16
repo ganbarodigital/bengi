@@ -86,13 +86,8 @@ $config = (object) [
         "path" => Config\GetExamplesSourcePath::DEFAULT_VALUE,
     ],
     "php" => (object)[
-        "defaults" => [ "5.6", "7.0", "7.1" ],
-        "versions" => (object) [
-            "5.6" => "\$HOME/.phpbrew/php-5.6.31/bin/php",
-            "7.0" => "\$HOME/.phpbrew/php-7.0.23/bin/php",
-            "7.1" => "\$HOME/.phpbrew/php-7.1.9/bin/php",
-            "7.2" => null
-        ]
+        "defaults" => Config\GetDefaultPhpVersionsList::DEFAULT_VALUE,
+        "versions" => Config\GetSupportedPhpVersionsList::DEFAULT_VALUE,
     ],
     "phpunit" => (object)[
         "clover_xml" => (object)[
