@@ -42,6 +42,7 @@
 
 use GanbaroDigital\Bengi\Commands;
 use GanbaroDigital\Bengi\Config;
+use GanbaroDigital\Bengi\GlobalSwitches;
 use GanbaroDigital\Bengi\Helpers;
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\Switches\LongHelpSwitch;
@@ -132,9 +133,9 @@ $cli->setAppLicense('Released under the BSD 3-Clause license.');
 $cli->addEngineSwitch(new VersionSwitch);
 $cli->addEngineSwitch(new LongHelpSwitch);
 $cli->addEngineSwitch(new ShortHelpSwitch);
-$cli->addEngineSwitch(new Commands\PathToProject($context));
-$cli->addEngineSwitch(new Commands\PathToDocs($context));
-$cli->addEngineSwitch(new Commands\BadgesStyle($context));
+$cli->addEngineSwitch(new GlobalSwitches\PathToProject($context));
+$cli->addEngineSwitch(new GlobalSwitches\PathToDocs($context));
+$cli->addEngineSwitch(new GlobalSwitches\BadgesStyle($context));
 
 // add our list of supported commands
 $cli->addCommand(new HelpCommand);

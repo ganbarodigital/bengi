@@ -39,7 +39,7 @@
  * @link      http://ganbarodigital.github.io/bengi
  */
 
-namespace GanbaroDigital\Bengi\Commands;
+namespace GanbaroDigital\Bengi\GlobalSwitches;
 
 use Phix_Project\CliEngine;
 use Phix_Project\CliEngine\CliResult;
