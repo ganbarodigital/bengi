@@ -56,10 +56,26 @@ class LoadConfig
                 return $defaultConfig;
             }
 
+            // what's in the config file?
             $rawConfig = file_get_contents($filename);
-            $config = json_decode($rawConfig);
+            if (empty(trim($rawConfig))) {
+                return clone $defaultConfig;
+            }
 
-            // TODO: add validation
+            // make sense of it
+            $decodeFunc = function() use ($rawConfig) {
+                return json_decode($rawConfig);
+            };
+            $onFailure = function($errorMessage) use ($filename) {
+                echo "*** error: unable to parse JSON in '{$filename}'" . PHP_EOL
+                . "- {$errorMessage}" . PHP_EOL;
+                exit(1);
+            };
+            $config = TrapLegacyErrors::call($decodeFunc, $onFailure);
+            if ($config === null) {
+                echo "*** error: unable to parse JSON in '{$filename}'" . PHP_EOL;
+                exit(1);
+            }
 
             // merge the loaded config into the defaults
             $retval = clone $defaultConfig;
