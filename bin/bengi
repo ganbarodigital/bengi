@@ -138,5 +138,6 @@ $cli->addCommand(new Commands\BuildCodeCoverageMetrics\Command($context));
 $cli->addCommand(new Commands\BuildContracts\Command($context));
 $cli->addCommand(new Commands\BuildPhpBadges\Command($context));
 $cli->addCommand(new Commands\DumpConfig\Command($context));
+$cli->addCommand(new Commands\RunExamples\Command($context));
 
 $cli->main($argv, $context);
